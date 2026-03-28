@@ -25,6 +25,9 @@ export const Route = createRootRoute({
       { property: 'og:locale', content: 'ru_RU' },
       { name: 'twitter:card', content: 'summary_large_image' },
     ],
+    links: [
+      { rel: 'canonical', href: 'https://glittery-biscotti-0e22d6.netlify.app/' },
+    ],
   }),
   shellComponent: RootDocument,
 })
