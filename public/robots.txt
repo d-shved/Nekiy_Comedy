@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://glittery-biscotti-0e22d6.netlify.app/sitemap.xml
