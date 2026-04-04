@@ -6,16 +6,14 @@ import tailwindcss from '@tailwindcss/vite'
 
 
 const config = defineConfig({
-    plugins: [
-          viteTsConfigPaths({
-                  projects: ['./tsconfig.json'],
-          }),
-          tailwindcss(),
-          tanstackStart({
-                  target: 'vercel',
-          }),
-          viteReact(),
-        ],
+      plugins: [
+              viteTsConfigPaths({
+                        projects: ['./tsconfig.json'],
+              }),
+              tailwindcss(),
+              tanstackStart(),
+              viteReact(),
+            ],
 })
 
 
