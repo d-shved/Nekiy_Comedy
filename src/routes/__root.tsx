@@ -40,11 +40,11 @@ function RootDocument({ children }: { children: React.ReactNode }) {
           <html lang="ru">
                 <head>
                         <HeadContent />
-                </head>head>
+                </head>
                 <body>
                   {children}
                         <Scripts />
-                </body>body>
-          </html>html>
+                </body>
+          </html>
         )
-}</html>
+}
