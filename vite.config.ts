@@ -1,17 +1,19 @@
-import { defineConfig } from 'vite'
-import { TanStackRouterVite } from '@tanstack/router-plugin/vite'
-import viteReact from '@vitejs/plugin-react'
+import { defineConfig } from '@tanstack/react-start/config'
 import viteTsConfigPaths from 'vite-tsconfig-paths'
 import tailwindcss from '@tailwindcss/vite'
 
 const config = defineConfig({
-          plugins: [
-                        viteTsConfigPaths({
-                                              projects: ['./tsconfig.json'],
-                        }),
-                        tailwindcss(),
-                        TanStackRouterVite({ autoCodeSplitting: true }),
-                        viteReact(),
-                    ],
+            tsr: {
+                          autoCodeSplitting: true,
+            },
+            vite: {
+                          plugins: [
+                                          viteTsConfigPaths({
+                                                            projects: ['./tsconfig.json'],
+                                          }),
+                                          tailwindcss(),
+                                        ],
+            },
 })
+
 export default config
