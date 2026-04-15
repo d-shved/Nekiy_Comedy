@@ -33,8 +33,7 @@ function MicrophoneHero() {
 
 function formatDate(dateStr: string) {
   try {
-    const date = new Date(dateStr)
-    return date.toLocaleDateString('ru-RU', {
+    return new Date(dateStr).toLocaleDateString('ru-RU', {
       day: 'numeric',
       month: 'long',
       year: 'numeric',
@@ -61,22 +60,28 @@ function EventCard({ event }: { event: ComedyEvent }) {
         </span>
       </div>
 
-      <p className="text-gray-400 text-sm leading-relaxed">{event.description}</p>
-
-      <div className="mt-auto pt-3 border-t border-gray-800 flex flex-col gap-2">
-        <div className="flex items-center gap-2 text-sm text-gray-300">
-          <Calendar className="w-4 h-4 text-red-600 shrink-0" />
+      <div className="flex flex-col gap-1.5 text-sm text-gray-400">
+        <div className="flex items-center gap-2">
+          <Calendar className="w-4 h-4 shrink-0" style={{ color: '#CC2222' }} />
           <span>{formatDate(event.date)}</span>
+          {event.time && (
+            <>
+              <Clock className="w-4 h-4 shrink-0 ml-1" style={{ color: '#CC2222' }} />
+              <span>{event.time}</span>
+            </>
+          )}
         </div>
-        <div className="flex items-center gap-2 text-sm text-gray-300">
-          <Clock className="w-4 h-4 text-red-600 shrink-0" />
-          <span>{event.time}</span>
-        </div>
-        <div className="flex items-center gap-2 text-sm text-gray-300">
-          <MapPin className="w-4 h-4 text-red-600 shrink-0" />
-          <span>{event.venue}</span>
-        </div>
+        {event.venue && (
+          <div className="flex items-center gap-2">
+            <MapPin className="w-4 h-4 shrink-0" style={{ color: '#CC2222' }} />
+            <span>{event.venue}</span>
+          </div>
+        )}
       </div>
+
+      {event.description && (
+        <p className="text-sm text-gray-500 leading-relaxed line-clamp-3">{event.description}</p>
+      )}
     </div>
   )
 }
@@ -87,6 +92,49 @@ function EmptyState({ label }: { label: string }) {
       <Mic className="w-10 h-10 mx-auto mb-3 opacity-30" />
       <p className="text-sm uppercase tracking-widest">{label}</p>
     </div>
+  )
+}
+
+interface EventsSectionProps {
+  title: string
+  subtitle: string
+  events: ComedyEvent[]
+  loading: boolean
+  emptyLabel: string
+  skeletonCount?: number
+}
+
+function EventsSection({ title, subtitle, events, loading, emptyLabel, skeletonCount = 3 }: EventsSectionProps) {
+  return (
+    <section className="max-w-6xl mx-auto px-4 py-12 md:py-16">
+      <div className="flex items-center gap-4 mb-8">
+        <Mic className="w-6 h-6 shrink-0" style={{ color: '#CC2222' }} />
+        <h2
+          className="text-3xl md:text-4xl font-black"
+          style={{ fontFamily: 'Oswald, Inter, sans-serif' }}
+        >
+          {title}
+        </h2>
+        <div className="flex-1 h-px bg-gray-800" />
+      </div>
+      <p className="text-gray-400 mb-8 -mt-4">{subtitle}</p>
+
+      {loading ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {Array.from({ length: skeletonCount }).map((_, i) => (
+            <div key={i} className="event-card rounded-lg p-6 h-48 animate-pulse bg-gray-900" />
+          ))}
+        </div>
+      ) : events.length === 0 ? (
+        <EmptyState label={emptyLabel} />
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {events.map((event) => (
+            <EventCard key={event.id} event={event} />
+          ))}
+        </div>
+      )}
+    </section>
   )
 }
 
@@ -112,9 +160,9 @@ function HomePage() {
       {/* Header */}
       <header className="sticky top-0 z-50 bg-black/90 backdrop-blur-sm border-b border-gray-900">
         <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-          <span className="font-bold text-lg tracking-widest uppercase text-white">
-            Nekiy <span style={{ color: '#CC2222' }}>Comedy</span>
-          </span>
+          <a href="/" className="text-xl font-black tracking-wider" style={{ fontFamily: 'Oswald, Inter, sans-serif' }}>
+            NEKIY <span style={{ color: '#CC2222' }}>COMEDY</span>
+          </a>
           <nav className="flex items-center gap-4">
             <a
               href="https://t.me/nekiy_comedy"
@@ -143,8 +191,7 @@ function HomePage() {
         <div
           className="absolute inset-0 opacity-10"
           style={{
-            background:
-              'radial-gradient(ellipse at 50% 0%, #CC2222 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse at 50% 0%, #CC2222 0%, transparent 70%)',
           }}
         />
         <div className="relative max-w-6xl mx-auto px-4 text-center flex flex-col items-center gap-8">
@@ -188,7 +235,8 @@ function HomePage() {
               href="https://www.instagram.com/nekiy_comedy_ffm"
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-2 px-6 py-3 font-bold text-sm uppercase tracking-wider rounded border border-gray-700 text-gray-300 hover:border-gray-500 hover:text-white transition-all duration-200 active:scale-95"
+              className="flex items-center gap-2 px-6 py-3 font-bold text-sm uppercase tracking-wider rounded transition-all duration-200 hover:opacity-90 active:scale-95"
+              style={{ border: '1px solid #CC2222', color: '#CC2222' }}
             >
               <Instagram className="w-4 h-4" />
               Instagram
@@ -198,85 +246,28 @@ function HomePage() {
       </section>
 
       {/* Stand-up Shows */}
-      <section className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-        <div className="flex items-center gap-4 mb-8">
-          <Mic className="w-6 h-6 shrink-0" style={{ color: '#CC2222' }} />
-          <h2
-            className="text-3xl md:text-4xl font-black"
-            style={{ fontFamily: 'Oswald, Inter, sans-serif' }}
-          >
-            Stand-up Shows
-          </h2>
-          <div className="flex-1 h-px bg-gray-800" />
-        </div>
-        <p className="text-gray-400 mb-8 -mt-4">
-          Выступления профессиональных стендап-комиков
-        </p>
-
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="event-card rounded-lg p-6 h-48 animate-pulse bg-gray-900"
-              />
-            ))}
-          </div>
-        ) : shows.length === 0 ? (
-          <EmptyState label="Ближайшие шоу появятся совсем скоро" />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {shows.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* Divider */}
-      <div className="max-w-6xl mx-auto px-4">
-        <div className="h-px bg-gradient-to-r from-transparent via-gray-800 to-transparent" />
-      </div>
+      <EventsSection
+        title="Stand-up Shows"
+        subtitle="Профессиональные стендап-шоу с приглашёнными комиками"
+        events={shows}
+        loading={loading}
+        emptyLabel="Скоро анонсы — следите за нами"
+        skeletonCount={3}
+      />
 
       {/* Open Mic */}
-      <section className="max-w-6xl mx-auto px-4 py-12 md:py-16">
-        <div className="flex items-center gap-4 mb-8">
-          <Mic className="w-6 h-6 shrink-0" style={{ color: '#CC2222' }} />
-          <h2
-            className="text-3xl md:text-4xl font-black"
-            style={{ fontFamily: 'Oswald, Inter, sans-serif' }}
-          >
-            Open Mic
-          </h2>
-          <div className="flex-1 h-px bg-gray-800" />
-        </div>
-        <p className="text-gray-400 mb-8 -mt-4">
-          Открытая сцена — для всех желающих попробовать стендап
-        </p>
+      <EventsSection
+        title="Open Mic"
+        subtitle="Открытая сцена — для всех желающих попробовать стендап"
+        events={openMics}
+        loading={loading}
+        emptyLabel="Open mic ивенты скоро будут"
+        skeletonCount={2}
+      />
 
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {[1, 2].map((i) => (
-              <div
-                key={i}
-                className="event-card rounded-lg p-6 h-48 animate-pulse bg-gray-900"
-              />
-            ))}
-          </div>
-        ) : openMics.length === 0 ? (
-          <EmptyState label="Open mic ивенты скоро будут объявлены" />
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {openMics.map((event) => (
-              <EventCard key={event.id} event={event} />
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* About Strip */}
+      {/* About */}
       <section
-        className="py-16 mt-4"
+        className="py-16 md:py-20 mt-4"
         style={{ background: 'linear-gradient(135deg, #0d0d0d 0%, #110000 100%)' }}
       >
         <div className="max-w-3xl mx-auto px-4 text-center">
@@ -298,16 +289,14 @@ function HomePage() {
 
       {/* Footer */}
       <footer className="border-t border-gray-900 py-8">
-        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-gray-600 text-sm uppercase tracking-widest">
-            Nekiy Comedy · Frankfurt am Main
-          </span>
-          <div className="flex items-center gap-5">
+        <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-600">
+          <span>© {new Date().getFullYear()} Nekiy Comedy</span>
+          <div className="flex items-center gap-6">
             <a
               href="https://t.me/nekiy_comedy"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-white transition-colors flex items-center gap-1.5 text-sm"
+              className="hover:text-white transition-colors flex items-center gap-1"
             >
               <Send className="w-4 h-4" />
               Telegram
@@ -316,42 +305,20 @@ function HomePage() {
               href="https://www.instagram.com/nekiy_comedy_ffm"
               target="_blank"
               rel="noopener noreferrer"
-              className="text-gray-600 hover:text-white transition-colors flex items-center gap-1.5 text-sm"
+              className="hover:text-white transition-colors flex items-center gap-1"
             >
               <Instagram className="w-4 h-4" />
               Instagram
             </a>
             <a
               href="/admin"
-              className="text-gray-800 hover:text-gray-600 transition-colors text-xs"
+              className="hover:text-white transition-colors"
             >
               Admin
             </a>
           </div>
         </div>
       </footer>
-      {/* SEO: географический охват */}
-            <section className="sr-only" aria-label="География">
-                    <h2>Стендап на русском языке в Германии</h2>
-                    <p>Nekiy Comedy — русскоязычный стендап-клуб, организующий stand-up shows и open mic вечера на русском языке для русскоязычной диаспоры в Германии. Мы базируемся во Франкфурте-на-Майне и охватываем весь регион Рейн-Майн, а также другие города Германии.</p>
-                    <ul>
-                              <li>Стендап на русском во Франкфурте</li>
-                              <li>Стендап на русском в Висбадене</li>
-                              <li>Стендап на русском в Дармштадте</li>
-                              <li>Стендап на русском в Майнце</li>h
-                              <li>Стендап на русском в Оффенбахе</li>
-                              <li>Стендап на русском в Мангейме</li>
-                              <li>Стендап на русском в Гейдельберге</li>
-                              <li>Стендап на русском в Гиссене</li>
-                              <li>Стендап на русском в Касселе</li>
-                              <li>Стендап на русском в Марбурге</li>
-                              <li>Русский стендап в Гессене</li>
-                              <li>Русский стендап в Рейнланд-Пфальце</li>
-                              <li>Русский стендап в Баден-Вюртемберге</li>
-                              <li>Русский стендап в Тюрингии</li>
-                    </ul>
-                    <p>Русскоязычный стендап 2026. Билеты на русский стендап в Германии. Куда сходить русскоязычному в Германии. Развлечения для русских в Германии. Стендап для русскоязычных эмигрантов. Русский стендап для диаспоры. Комедия на русском в Германии. Русскоязычный вечер юмора Германия. Стендап шоу на русском Германия 2026.</p>
-            </section>
     </div>
   )
 }
