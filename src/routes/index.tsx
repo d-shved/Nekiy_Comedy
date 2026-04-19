@@ -310,6 +310,12 @@ function HomePage() {
               <Instagram className="w-4 h-4" />
               Instagram
             </a>
+            <a
+              href="/admin"
+              className="hover:text-white transition-colors"
+            >
+              Admin
+            </a>
           </div>
         </div>
       </footer>
