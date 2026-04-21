@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Mic, MapPin, Clock, Calendar, Instagram, Send } from 'lucide-react'
-import type { ComedyEvent } from './api.events'
+import type { ComedyEvent } from '../types'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
