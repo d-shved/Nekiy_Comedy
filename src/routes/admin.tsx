@@ -1,5 +1,5 @@
 import { createFileRoute } from '@tanstack/react-router'
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, type FormEvent } from 'react'
 import { Mic, Plus, Trash2, Edit2, Save, X, LogIn, LogOut } from 'lucide-react'
 import type { ComedyEvent } from './api.events'
 
@@ -67,7 +67,7 @@ function AdminPage() {
     }
   }
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     setLoginError('')
     const ok = await verifyAndLogin(passwordInput)
@@ -89,7 +89,7 @@ function AdminPage() {
     setShowForm(false)
   }
 
-  const handleSave = async (e: React.FormEvent) => {
+  const handleSave = async (e: FormEvent) => {
     e.preventDefault()
     setError('')
     if (!password) return
