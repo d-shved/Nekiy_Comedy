@@ -1,7 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useCallback, type FormEvent } from 'react'
 import { Mic, Plus, Trash2, Edit2, Save, X, LogIn, LogOut } from 'lucide-react'
-import type { ComedyEvent } from './api.events'
+import type { ComedyEvent } from '../types'
 
 export const Route = createFileRoute('/admin')({
   component: AdminPage,
