@@ -2,6 +2,13 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect, useCallback, type FormEvent } from 'react'
 import { Mic, Plus, Trash2, Edit2, Save, X, LogIn, LogOut } from 'lucide-react'
 import type { ComedyEvent } from '../types'
+import {
+  listEvents,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+  probeAuth,
+} from '../lib/api'
 
 export const Route = createFileRoute('/admin')({
   component: AdminPage,
@@ -38,11 +45,7 @@ function AdminPage() {
   const fetchEvents = useCallback(async () => {
     setLoading(true)
     try {
-      const res = await fetch('/api/events')
-      const data = await res.json()
-      setEvents(data)
-    } catch (err) {
-      setError('Не удалось загрузить события')
+      setEvents(await listEvents())
     } finally {
       setLoading(false)
     }
@@ -52,25 +55,10 @@ function AdminPage() {
     if (password) fetchEvents()
   }, [password, fetchEvents])
 
-  const verifyAndLogin = async (pw: string) => {
-    // Probe auth by attempting a harmless DELETE on a nonexistent id.
-    // 401 => wrong password; anything else (404/204/5xx) => password accepted.
-    try {
-      const res = await fetch('/api/events/__probe__', {
-        method: 'DELETE',
-        headers: { 'X-Admin-Password': pw },
-      })
-      if (res.status === 401) return false
-      return true
-    } catch {
-      return true // network error — let user proceed; real errors will surface later
-    }
-  }
-
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault()
     setLoginError('')
-    const ok = await verifyAndLogin(passwordInput)
+    const ok = await probeAuth(passwordInput)
     if (!ok) {
       setLoginError('Неверный пароль')
       return
@@ -94,16 +82,9 @@ function AdminPage() {
     setError('')
     if (!password) return
     try {
-      const url = editingId ? `/api/events/${editingId}` : '/api/events'
-      const method = editingId ? 'PUT' : 'POST'
-      const res = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'X-Admin-Password': password,
-        },
-        body: JSON.stringify(form),
-      })
+      const res = editingId
+        ? await updateEvent(editingId, form, password)
+        : await createEvent(form, password)
       if (res.status === 401) {
         handleLogout()
         setError('Неверный пароль — войдите заново')
@@ -136,10 +117,7 @@ function AdminPage() {
     if (!password) return
     if (!confirm('Удалить это событие?')) return
     try {
-      const res = await fetch(`/api/events/${id}`, {
-        method: 'DELETE',
-        headers: { 'X-Admin-Password': password },
-      })
+      const res = await deleteEvent(id, password)
       if (res.status === 401) {
         handleLogout()
         return
@@ -325,9 +303,8 @@ function AdminPage() {
           {events.map((event) => (
             <div
               key={event.id}
-              className="bg-gray-950 border border-gray-800 rounded p-3 flex items-center justify-between gap-3"
-            >
-              <div className="min-w-0 flex-1">
+              className="bg-gray-950 border border-gray-800 rounded p-3 flex items-center justify-between gap-3">
+            <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-1">
                   <span className="uppercase">
                     {event.type === 'show' ? 'Stand-up show' : 'Open mic'}
