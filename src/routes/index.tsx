@@ -2,6 +2,7 @@ import { createFileRoute } from '@tanstack/react-router'
 import { useState, useEffect } from 'react'
 import { Mic, MapPin, Clock, Calendar, Instagram, Send } from 'lucide-react'
 import type { ComedyEvent } from '../types'
+import { listEvents } from '../lib/api'
 
 export const Route = createFileRoute('/')({
   component: HomePage,
@@ -143,10 +144,8 @@ function HomePage() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    fetch('/api/events')
-      .then((r) => r.json())
-      .then((data: ComedyEvent[]) => setEvents(data))
-      .catch(() => setEvents([]))
+    listEvents()
+      .then(setEvents)
       .finally(() => setLoading(false))
   }, [])
 
