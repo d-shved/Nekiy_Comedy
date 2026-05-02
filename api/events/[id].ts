@@ -1,13 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { kv } from '@vercel/kv'
 import type { ComedyEvent } from '../../src/types'
-
-const STORE_KEY = 'comedy-events'
-
-function checkAuth(req: VercelRequest): boolean {
-  const adminPassword = process.env.ADMIN_PASSWORD || 'nekiy2024'
-  return req.headers['x-admin-password'] === adminPassword
-}
+import { STORE_KEY, checkAuth } from '../_lib'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const { id } = req.query as { id: string }
